@@ -1,7 +1,6 @@
-# oc-ports
+# **Walk OpenShift Ports in All Containers**
 
-
-Show all ports running inside of all containers on OpenShift cluster
+The following script will show all local,remote and port connections running in all pods in all namespaces on an OpenShift cluster.
 
 ~~~bash
 #!/bin/bash
