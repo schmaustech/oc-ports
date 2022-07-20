@@ -4,31 +4,6 @@ The following script will show all local,remote and port connections running in 
 
 ~~~bash
 #!/bin/bash
-format="%-15s%-15s%-15s%-15s%-12s%-12s%-30s%-30s\n"
-for namespace in `oc get namespaces | egrep -v NAME | awk {'print $1'}`
-do
-  for pod in `oc get pods -n $namespace | egrep -v NAME | grep Running | awk {'print $1'}`
-  do 
-    sockets=`oc exec -q $pod -n $namespace -- grep -v "rem_address" /proc/net/tcp | awk '{ print $2":"$3":"$4":"$10 }'`
-    printf "$format" LocalAddr LocalPort RemoteAddr RemotePort ProcessID Listener Namespace Pod
-    printf "$format" --------- --------- ---------- ---------- --------- -------- --------- -----------
-    for socket in $(echo $sockets)
-    do
-      IFS=':' read -r localaddr localport remoteaddr remoteport listen inode <<< $socket
-      localaddr=$(printf "%d." $(echo $localaddr | sed 's/../0x& /g' | tr ' ' '\n' | tac) | sed 's/\.$/\n/')
-      localport=$(echo $((0x$localport)))
-      remoteaddr=$(printf "%d." $(echo $remoteaddr | sed 's/../0x& /g' | tr ' ' '\n' | tac) | sed 's/\.$/\n/')
-      remoteport=$(echo $((0x$remoteport)))
-      processid=$(oc exec -q -i $pod -n $namespace -- bash -s <<EOF
-find /proc/*/fd/* -type l 2>/dev/null | xargs ls -l 2>/dev/null | grep 'socket:\[$inode\]' | cut -d ' ' -f9| cut -d '/' -f3 
-EOF
-)
-      tcp_state
-      printf "$format" "$localaddr" "$localport" "$remoteaddr" "$remoteport" "$processid" "$listen" "$namespace" "$pod"
-    done
-  done
-done
-exit
 
 tcp_state () {
 case $listen in
@@ -73,6 +48,33 @@ listen="UKNOWN"
 ;;
 esac
 }
+
+
+format="%-15s%-15s%-15s%-15s%-12s%-12s%-30s%-30s\n"
+for namespace in `oc get namespaces | egrep -v NAME | awk {'print $1'}`
+do
+  for pod in `oc get pods -n $namespace | egrep -v NAME | grep Running | awk {'print $1'}`
+  do 
+    sockets=`oc exec -q $pod -n $namespace -- grep -v "rem_address" /proc/net/tcp | awk '{ print $2":"$3":"$4":"$10 }'`
+    printf "$format" LocalAddr LocalPort RemoteAddr RemotePort ProcessID Listener Namespace Pod
+    printf "$format" --------- --------- ---------- ---------- --------- -------- --------- -----------
+    for socket in $(echo $sockets)
+    do
+      IFS=':' read -r localaddr localport remoteaddr remoteport listen inode <<< $socket
+      localaddr=$(printf "%d." $(echo $localaddr | sed 's/../0x& /g' | tr ' ' '\n' | tac) | sed 's/\.$/\n/')
+      localport=$(echo $((0x$localport)))
+      remoteaddr=$(printf "%d." $(echo $remoteaddr | sed 's/../0x& /g' | tr ' ' '\n' | tac) | sed 's/\.$/\n/')
+      remoteport=$(echo $((0x$remoteport)))
+      processid=$(oc exec -q -i $pod -n $namespace -- bash -s <<EOF
+find /proc/*/fd/* -type l 2>/dev/null | xargs ls -l 2>/dev/null | grep 'socket:\[$inode\]' | cut -d ' ' -f9| cut -d '/' -f3 
+EOF
+)
+      tcp_state
+      printf "$format" "$localaddr" "$localport" "$remoteaddr" "$remoteport" "$processid" "$listen" "$namespace" "$pod"
+    done
+  done
+done
+exit
 ~~~
 
 Example output:
