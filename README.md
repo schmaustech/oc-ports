@@ -50,7 +50,7 @@ esac
 }
 
 
-format="%-15s%-15s%-15s%-15s%-12s%-20s%-30s%-30s\n"
+format="%-15s%-15s%-15s%-15s%-12s%-20s%-50s%-30s\n"
 for namespace in `oc get namespaces | egrep -v NAME | awk {'print $1'}`
 do
   for pod in `oc get pods -n $namespace | egrep -v NAME | grep Running | awk {'print $1'}`
