@@ -23,52 +23,56 @@ do
 find /proc/*/fd/* -type l 2>/dev/null | xargs ls -l 2>/dev/null | grep 'socket:\[$inode\]' | cut -d ' ' -f9| cut -d '/' -f3 
 EOF
 )
-      case $listen in
-      01)
-      listen="TCP_ESTABLISHED"
-      ;;
-      02)
-      listen="TCP_SYN_SENT"
-      ;;
-      03)
-      listen="TCP_SYN_RECV"
-      ;;
-      04)
-      listen="TCP_FIN_WAIT1"
-      ;;
-      05)
-      listen="TCP_FIN_WAIT2"
-      ;;
-      06)
-      listen="TCP_TIME_WAIT"
-      ;;
-      07)
-      listen="TCP_CLOSE"
-      ;;
-      08)
-      listen="TCP_CLOSE_WAIT"
-      ;;
-      09)
-      listen="TCP_LAST_ACK"
-      ;;
-      0A)
-      listen="TCP_LISTEN"
-      ;;
-      0B)
-      listen="TCP_CLOSING"
-      ;;
-      0C)
-      listen="TCP_NEW_SYN_RECV"
-      ;;
-      *)
-      listen="UKNOWN"
-      ;;
-      esac
+      tcp_state
       printf "$format" "$localaddr" "$localport" "$remoteaddr" "$remoteport" "$processid" "$listen" "$namespace" "$pod"
     done
   done
 done
+exit
 
+tcp_state () {
+case $listen in
+01)
+listen="TCP_ESTABLISHED"
+;;
+02)
+listen="TCP_SYN_SENT"
+;;
+03)
+listen="TCP_SYN_RECV"
+;;
+04)
+listen="TCP_FIN_WAIT1"
+;;
+05)
+listen="TCP_FIN_WAIT2"
+;;
+06)
+listen="TCP_TIME_WAIT"
+;;
+07)
+listen="TCP_CLOSE"
+;;
+08)
+listen="TCP_CLOSE_WAIT"
+;;
+09)
+listen="TCP_LAST_ACK"
+;;
+0A)
+listen="TCP_LISTEN"
+;;
+0B)
+listen="TCP_CLOSING"
+;;
+0C)
+listen="TCP_NEW_SYN_RECV"
+;;
+*)
+listen="UKNOWN"
+;;
+esac
+}
 ~~~
 
 Example output:
