@@ -50,14 +50,14 @@ esac
 }
 
 
-format="%-15s%-15s%-15s%-15s%-12s%-12s%-30s%-30s\n"
+format="%-15s%-15s%-15s%-15s%-12s%-20s%-30s%-30s\n"
 for namespace in `oc get namespaces | egrep -v NAME | awk {'print $1'}`
 do
   for pod in `oc get pods -n $namespace | egrep -v NAME | grep Running | awk {'print $1'}`
   do 
     sockets=`oc exec -q $pod -n $namespace -- grep -v "rem_address" /proc/net/tcp | awk '{ print $2":"$3":"$4":"$10 }'`
-    printf "$format" LocalAddr LocalPort RemoteAddr RemotePort ProcessID Listener Namespace Pod
-    printf "$format" --------- --------- ---------- ---------- --------- -------- --------- -----------
+    printf "$format" LocalAddr LocalPort RemoteAddr RemotePort ProcessID PortState Namespace Pod
+    printf "$format" --------- --------- ---------- ---------- --------- --------- --------- -----------
     for socket in $(echo $sockets)
     do
       IFS=':' read -r localaddr localport remoteaddr remoteport listen inode <<< $socket
