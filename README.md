@@ -56,7 +56,7 @@ do
   for pod in `oc get pods -n $namespace | egrep -v NAME | grep Running | awk {'print $1'}`
   do 
     sockets=`oc exec -q $pod -n $namespace -- grep -v "rem_address" /proc/net/tcp | awk '{ print $2":"$3":"$4":"$10 }'`
-    printf "$format" LocalAddr LocalPort RemoteAddr RemotePort ProcessID PortState Namespace Pod
+    printf "$format" LocalAddr LocalPort RemoteAddr RemotePort Inode PortState Namespace Pod
     printf "$format" --------- --------- ---------- ---------- --------- --------- --------- -----------
     for socket in $(echo $sockets)
     do
@@ -65,12 +65,12 @@ do
       localport=$(echo $((0x$localport)))
       remoteaddr=$(printf "%d." $(echo $remoteaddr | sed 's/../0x& /g' | tr ' ' '\n' | tac) | sed 's/\.$/\n/')
       remoteport=$(echo $((0x$remoteport)))
-      processid=$(oc exec -q -i $pod -n $namespace -- bash -s <<EOF
-find /proc/*/fd/* -type l 2>/dev/null | xargs ls -l 2>/dev/null | grep 'socket:\[$inode\]' | cut -d ' ' -f9| cut -d '/' -f3 
-EOF
-)
+      #processid=$(oc exec -q -i $pod -n $namespace -- bash -s <<EOF
+      #find /proc/*/fd/* -type l 2>/dev/null | xargs ls -l 2>/dev/null | grep 'socket:\[$inode\]' | cut -d ' ' -f9| cut -d '/' -f3 
+      #EOF
+      #)
       tcp_state
-      printf "$format" "$localaddr" "$localport" "$remoteaddr" "$remoteport" "$processid" "$listen" "$namespace" "$pod"
+      printf "$format" "$localaddr" "$localport" "$remoteaddr" "$remoteport" "$inode" "$listen" "$namespace" "$pod"
     done
   done
 done
