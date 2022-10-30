@@ -1,4 +1,4 @@
-# **Walk OpenShift Ports in Containers**
+# **Walk Open Ports in OpenShift Pods**
 
 I was recently working with a customer who had the requirement to see what ports were in use inside a few of their OpenShift containers.  This led me to produce a little [script](https://github.com/schmaustech/oc-ports/blob/main/oc-ports.sh) that allows me to walk all the ports in use across a single namespace/pod, all pods in a given namespace or across the entire cluster.  Let's take a quick look at some examples of its usage in the rest of this short blog.
 
